@@ -1,7 +1,7 @@
 {
-  "name": "@awdware/gah-plugin-template",
-  "version": "0.0.17",
-  "description": "Template for a new plugin for gah",
+  "name": "@awdware/gah-ie11-plugin",
+  "version": "0.1.0",
+  "description": "Enables IE11 support for gah",
   "main": "./lib/index.js",
   "scripts": {
     "prebuild": "del-cli lib",
@@ -13,16 +13,16 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@awdware/gah-shared": "^0.0.43"
+    "@awdware/gah-shared": "^0.0.49"
   },
   "devDependencies": {
     "@awdware/eslint-config-nodejs": "^0.0.6",
-    "@types/node": "^14.6.0",
-    "@typescript-eslint/eslint-plugin": "^3.10.1",
-    "@typescript-eslint/parser": "^3.10.1",
-    "del-cli": "^3.0.0",
-    "eslint": "^7.7.0",
+    "@types/node": "^14.11.2",
+    "@typescript-eslint/eslint-plugin": "^4.3.0",
+    "@typescript-eslint/parser": "^4.3.0",
+    "del-cli": "^3.0.1",
+    "eslint": "^7.10.0",
     "ts-node": "^9.0.0",
-    "typescript": "^4.0.2"
+    "typescript": "^4.0.3"
   }
 }

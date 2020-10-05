@@ -1,3 +1,3 @@
-import { TemplatePlugin } from './template-plugin';
+import { IE11Plugin } from './ie11-plugin';
 
-export default TemplatePlugin;
+export default IE11Plugin;
