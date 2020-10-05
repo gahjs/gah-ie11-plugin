@@ -1,0 +1,1 @@
+﻿# gah-plugin-template
