@@ -1,6 +1,6 @@
 {
   "name": "@awdware/gah-ie11-plugin",
-  "version": "0.1.1",
+  "version": "0.1.3",
   "description": "Enables IE11 support for gah",
   "main": "./lib/index.js",
   "scripts": {

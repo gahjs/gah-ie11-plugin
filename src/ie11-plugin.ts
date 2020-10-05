@@ -33,9 +33,6 @@ export class IE11Plugin extends GahPlugin {
 
       const host = event.module!;
 
-      host.tsConfigFile.tsConfig.compilerOptions.target = 'es5';
-      this.fileSystemService.saveObjectToFile(host.tsConfigFile.path, host.tsConfigFile.tsConfig);
-
       const customPolyfills = this.cfg?.polyfillImports ?? []; 
 
       const polyfills = [...ie11polyfills, ...customPolyfills, 'zone.js/dist/zone'];
@@ -46,9 +43,27 @@ export class IE11Plugin extends GahPlugin {
 
       const browserslistPath = this.fileSystemService.join(host.basePath, '.browserslistrc');
 
-      const browserslistrc = this.fileSystemService.readFile(browserslistPath);
-      browserslistrc.replace('not IE 9-11', 'IE 9-11');
+      let browserslistrc = this.fileSystemService.readFile(browserslistPath);
+      browserslistrc = browserslistrc.replace('not IE 9-11', 'IE 9-11');
       this.fileSystemService.saveFile(browserslistPath, browserslistrc);
+
+      this.fileSystemService.copyFile(this.fileSystemService.join(__dirname, '../assets/tsconfig.es5.json'), host.basePath);
+
+      const ngJsonPath = this.fileSystemService.join(host.basePath, 'angular.json');
+      const angularJson = this.fileSystemService.parseFile<any>(ngJsonPath);
+
+      angularJson.projects['gah-host'].architect.build.configurations.es5 = {
+        tsConfig: './tsconfig.es5.json'
+      };
+
+      if(!angularJson.projects['gah-host'].architect.serve.configurations) {
+        angularJson.projects['gah-host'].architect.serve.configurations = {};
+      }
+      angularJson.projects['gah-host'].architect.serve.configurations.es5 = {
+        browserTarget: 'gah-host:build:es5'
+      };
+
+      this.fileSystemService.saveObjectToFile(ngJsonPath, angularJson);
 
       this.loggerService.success('plugin done');
     });
