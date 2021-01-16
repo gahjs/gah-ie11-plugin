@@ -1,4 +1,4 @@
-import { GahPlugin, GahPluginConfig, PackageJson } from '@awdware/gah-shared';
+import { GahPlugin, GahPluginConfig } from '@gah/shared';
 
 import { PluginConfig } from './plugin-config';
 import { ie11polyfillPackages, ie11polyfills } from './ie11-polyfills';
@@ -7,6 +7,7 @@ import { ie11polyfillPackages, ie11polyfills } from './ie11-polyfills';
  * A gah plugin has to extend the abstract GahPlugin base class and implement the abstract methods.
  */
 export class IE11Plugin extends GahPlugin {
+  private step = 0;
   constructor() {
     // Call the constructor with the name of the plugin (only used for logging, does not need to match the package name)
     super('IE11Plugin');
@@ -20,20 +21,25 @@ export class IE11Plugin extends GahPlugin {
     return existingCfg;
   }
 
+  private didStep() {
+    this.step++;
+    if (this.step === 3) {
+      this.loggerService.success('IE11 plugin done');
+    }
+  }
+
   /**
    * Called everytime gah gets used for all configured plugins. Register your handlers here.
    */
   public onInit() {
     // Register a handler that gets called synchronously if the corresponding event occured. Some events can be called multiple times!
 
-    this.registerEventListener('ANGULAR_JSON_ADJUSTED', (event) => {
+    this.registerEventListener('BEFORE_ADJUST_ANGULAR_JSON', (event) => {
       if (!event.module?.isHost) {
         return;
       }
-      const host = event.module!;
 
-      const ngJsonPath = this.fileSystemService.join(host.basePath, 'angular.json');
-      const angularJson = this.fileSystemService.parseFile<any>(ngJsonPath);
+      const angularJson = event.ngJson;
 
       // Adjust build
       angularJson.projects['gah-host'].architect.build.configurations.es5 = {
@@ -55,11 +61,10 @@ export class IE11Plugin extends GahPlugin {
       const prodServe = { ...angularJson.projects['gah-host'].architect.serve.configurations.production };
       prodServe.browserTarget = 'gah-host:build:prod-es5';
       angularJson.projects['gah-host'].architect.serve.configurations['prod-es5'] = prodServe;
-
-      this.fileSystemService.saveObjectToFile(ngJsonPath, angularJson);
+      this.didStep();
     });
 
-    this.registerEventListener('INDEX_HTML_ADJUSTED', (event) => {
+    this.registerEventListener('AFTER_ADJUST_INDEX_HTML', async (event) => {
 
       if (!event.module?.isHost) {
         return;
@@ -77,20 +82,19 @@ export class IE11Plugin extends GahPlugin {
 
       const browserslistPath = this.fileSystemService.join(host.basePath, '.browserslistrc');
 
-      let browserslistrc = this.fileSystemService.readFile(browserslistPath);
+      let browserslistrc = await this.fileSystemService.readFile(browserslistPath);
       browserslistrc = browserslistrc.replace('not IE 9-11', 'IE 9-11');
-      this.fileSystemService.saveFile(browserslistPath, browserslistrc);
+      await this.fileSystemService.saveFile(browserslistPath, browserslistrc);
 
-      this.fileSystemService.copyFile(this.fileSystemService.join(__dirname, '../assets/tsconfig.es5.json'), host.basePath);
-      this.loggerService.success('plugin done');
+      await this.fileSystemService.copyFile(this.fileSystemService.join(__dirname, '../assets/tsconfig.es5.json'), host.basePath);
+      this.didStep();
     });
 
-    this.registerEventListener('DEPENDENCIES_MERGED', (event) => {
+    this.registerEventListener('BEFORE_MERGE_DEPENDENCIES', (event) => {
       if (!event.module?.isHost) {
         return;
       }
-      const pkgJsonPath = this.fileSystemService.join(event.module.basePath, 'package.json');
-      const pkgJson = event.module.packageJson;
+      const pkgJson = event.pkgJson;
 
       const allPackagesWithVersions = Object.keys(ie11polyfillPackages).map(pkgName => { return { name: pkgName, version: ie11polyfillPackages[pkgName] }; });
       if (this.cfg && this.cfg.polyfillPackages) {
@@ -100,8 +104,7 @@ export class IE11Plugin extends GahPlugin {
       allPackagesWithVersions.forEach(x => {
         pkgJson.dependencies![x.name] = x.version;
       });
-
-      this.fileSystemService.saveObjectToFile(pkgJsonPath, pkgJson);
+      this.didStep();
     });
   }
 

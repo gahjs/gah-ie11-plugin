@@ -1,12 +1,11 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "ES2019",
     "module": "commonjs",
     "baseUrl": "./",
     "lib": [
-      "es6",
-      "es2015",
-      "dom"
+      "ES2019",
+      "ESNext"
     ],
     "declaration": true,
     "outDir": "lib",
