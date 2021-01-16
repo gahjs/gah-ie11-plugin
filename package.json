@@ -1,6 +1,6 @@
 {
   "name": "@awdware/gah-ie11-plugin",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Enables IE11 support for gah",
   "main": "./lib/index.js",
   "scripts": {
@@ -13,7 +13,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
-    "@gah/shared": "^0.5.7"
+    "@gah/shared": "^0.6.0"
   },
   "devDependencies": {
     "@awdware/eslint-config-nodejs": "^0.0.6",
